@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>BBNomNom Boyfriend Simulator</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div id="stage">
+        <div class="scene">
+            <img id="bfImg" class="center-img" src="./images/neutral 1.jpg" alt="">
+            <div class="speech-bubble">
+                <img class="bubble-img" src="./images/text bubble.png" alt="">
+                <span class="bubble-text">Hello.</span>
+                <textarea
+                    id="freeInput"
+                    class="free-input"
+                    rows="3"
+                    placeholder="Type something..."
+                ></textarea>
+                <div class="skill-buttons">
+                    <img src="./images/question button.png" class="skill-btn disabled" data-skill="slap">
+                    <img src="./images/question button.png" class="skill-btn disabled" data-skill="kiss">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="bfsimulator.js"></script>
+  </body>
+</html>
+

@@ -1,0 +1,94 @@
+body {
+  margin: 0;
+  height: 100vh;
+}
+
+#stage {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scene {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+}
+
+.center-img {
+  height: clamp(280px, 80vh, 720px);
+  width: auto;
+}
+
+.speech-bubble {
+  position: relative;
+  height: 420px;
+  width: auto;
+  margin-top: -420px; /* replaces translateY(-18vh) with a stable offset */
+  margin-left: -60px;
+}
+
+.bubble-text {
+  font-family: "Trebuchet MS", "Verdana", "Tahoma", "Arial", sans-serif;
+  position: absolute;
+
+  /* Use pixel insets so it stays inside the bubble art */
+  top: 115px;
+  left: 135px;
+  right: 70px;
+  bottom: 85px;
+
+  font-size: 26px;
+  line-height: 1.25;
+  color: #000;
+
+  white-space: normal;
+  overflow-wrap: break-word;
+
+  pointer-events: none;
+}
+
+.bubble-img {
+  height: 100%;
+  width: auto;
+  display: block;
+}
+
+.skill-buttons {
+  display: flex;
+  justify-content: left;
+  gap: 24px;
+  margin-top: 20px;   /* space under text box */
+  margin-left: 120px;
+}
+
+.skill-btn {
+  width: 140px;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.skill-btn.disabled {
+  opacity: 0.6;
+  filter: grayscale(100%);
+  pointer-events: none;
+  cursor: default;
+}
+
+.free-input {
+  margin-left: 120px;
+  margin-top: 100px;
+  width: 420px;
+  min-height: 80px;
+
+  padding: 12px 14px;
+  font-size: 20px;
+  font-family: "Trebuchet MS", "Verdana", "Tahoma", "Arial", sans-serif;
+
+  border: 2px solid #000;
+  border-radius: 4px;
+  outline: none;
+
+  resize: none; /* keeps the pixel-clean look */
+}
