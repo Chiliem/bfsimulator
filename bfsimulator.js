@@ -1,3 +1,5 @@
+//bf simulator, dating sim to the style of stardew valley
+
 const stage = document.getElementById("stage");
 
 const img = document.getElementById("bfImg");
