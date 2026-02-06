@@ -29,9 +29,9 @@ app.post("/chat", async (req, res) => {
     const userMessage = req.body.message;
 
     const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "GPT-4.1-mini",
       messages: [
-        { role: "system", content: "You are a gentle, slightly shy boyfriend in a pixel dating sim." },
+        { role: "system", content: "You are a gentle, slightly shy boyfriend in a pixel dating sim. Only reply in short messages." },
         { role: "user", content: userMessage }
       ]
     });
