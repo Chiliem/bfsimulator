@@ -10,15 +10,24 @@ const freeInput = document.getElementById("freeInput");
 
 let lastUserInput = "";
 
-freeInput.addEventListener("keydown", (e) => {
+const API_BASE = "https://YOUR-RAILWAY-URL";
+
+freeInput.addEventListener("keydown", async (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
 
-    lastUserInput = freeInput.value.trim();
-    if (!lastUserInput) return;
+    const text = freeInput.value.trim();
+    if (!text) return;
 
-    console.log("User submitted:", lastUserInput);
+    freeInput.value = "";
 
-    freeInput.value = ""; // clear after send
+    const res = await fetch(`${API_BASE}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text }),
+    });
+
+    const data = await res.json();
+    document.querySelector(".bubble-text").innerText = data.reply;
   }
 });
