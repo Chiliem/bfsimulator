@@ -20,14 +20,33 @@ freeInput.addEventListener("keydown", async (e) => {
     if (!text) return;
 
     freeInput.value = "";
+    document.querySelector(".bubble-text").innerText = "…";
 
-    const res = await fetch(`${API_BASE}/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text }),
-    });
+    try {
+      const res = await fetch(`${API_BASE}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
 
-    const data = await res.json();
-    document.querySelector(".bubble-text").innerText = data.reply;
+      const raw = await res.text();
+      console.log("Status:", res.status);
+      console.log("Raw response:", raw);
+
+      if (!res.ok) {
+        document.querySelector(".bubble-text").innerText =
+          `Server error (${res.status})`;
+        return;
+      }
+
+      const data = JSON.parse(raw);
+      document.querySelector(".bubble-text").innerText =
+        data.reply ?? "(no reply field)";
+    } catch (err) {
+      console.error(err);
+      document.querySelector(".bubble-text").innerText =
+        "Fetch failed (see console)";
+    }
   }
 });
+
