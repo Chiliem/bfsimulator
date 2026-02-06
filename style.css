@@ -25,7 +25,7 @@ body {
   position: relative;
   height: 560px;   /* was 420px */
   width: auto;
-  margin-top: -560px;
+  margin-top: -420px;
   margin-left: -60px;
 }
 
@@ -39,7 +39,7 @@ body {
   right: 70px;
   bottom: 85px;
 
-  font-size: 26px;
+  font-size: 22px;
   line-height: 1.25;
   color: #000;
 
