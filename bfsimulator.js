@@ -10,7 +10,7 @@ const freeInput = document.getElementById("freeInput");
 
 let lastUserInput = "";
 
-const API_BASE = "https://YOUR-RAILWAY-URL";
+const API_BASE = "bfsimulator-production.up.railway.app";
 
 freeInput.addEventListener("keydown", async (e) => {
   if (e.key === "Enter") {
