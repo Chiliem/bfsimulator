@@ -23,9 +23,9 @@ body {
 
 .speech-bubble {
   position: relative;
-  height: 420px;
+  height: 560px;   /* was 420px */
   width: auto;
-  margin-top: -420px; /* replaces translateY(-18vh) with a stable offset */
+  margin-top: -560px;
   margin-left: -60px;
 }
 
