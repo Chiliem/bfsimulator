@@ -2,6 +2,10 @@ import express from "express";
 import cors from "cors";
 import OpenAI from "openai";
 
+console.log("BOOT FILES OK, cwd=", process.cwd());
+console.log("PORT env=", process.env.PORT);
+console.log("has OPENAI_API_KEY=", !!process.env.OPENAI_API_KEY);
+
 const app = express();
 // CORS hard-stop (preflight + actual requests)
 app.use((req, res, next) => {
