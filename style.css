@@ -70,10 +70,7 @@ body {
 }
 
 .skill-btn.disabled {
-  opacity: 0.6;
-  filter: grayscale(100%);
-  pointer-events: none;
-  cursor: default;
+  display: none;
 }
 
 .free-input {
