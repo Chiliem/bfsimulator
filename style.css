@@ -47,6 +47,10 @@ body {
   overflow-wrap: break-word;
 
   pointer-events: none;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 }
 
 .bubble-img {
