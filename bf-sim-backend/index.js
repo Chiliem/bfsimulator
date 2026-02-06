@@ -3,13 +3,18 @@ import cors from "cors";
 import OpenAI from "openai";
 
 const app = express();
-app.use(cors({
-  origin: "https://chiliem.github.io",
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
-}));
-app.options("*", cors());
+// CORS hard-stop (preflight + actual requests)
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "https://chiliem.github.io");
+  res.setHeader("Vary", "Origin");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
 app.use(express.json());
+
+app.get("/health", (req, res) => res.send("ok"));
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
