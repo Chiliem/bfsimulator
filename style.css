@@ -35,8 +35,8 @@ body {
 
   /* Use pixel insets so it stays inside the bubble art */
   top: 165px;
-  left: 165px;
-  right: 120px;
+  left: 170px;
+  right: 125px;
   bottom: 85px;
 
   font-size: 22px;
