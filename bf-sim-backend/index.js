@@ -26,20 +26,37 @@ const client = new OpenAI({
 
 app.post("/chat", async (req, res) => {
   try {
-    const userMessage = req.body.message;
+    const userMessage = String(req.body?.message ?? "");
+    const persona = String(req.body?.persona ?? "").slice(0, 6000);
+
+    // Expect: history = [{ role: "user"|"assistant", content: "..." }, ...]
+    const rawHistory = Array.isArray(req.body?.history) ? req.body.history : [];
+    const history = rawHistory
+      .slice(-16) // last 8 turns (user+assistant)
+      .map((m) => ({
+        role: m?.role === "assistant" ? "assistant" : "user",
+        content: String(m?.content ?? "").slice(0, 1200),
+      }));
+
+    const systemBase =
+      "You are Chili in a boyfriend simulator (playful, direct, socially sharp + technical). " +
+      "Be concise. No filler. Do not end messages with questions. " +
+      "If uncertain, say you don't know. Keep it natural.";
+
+    const system = persona ? `${systemBase}\n\nPERSONA:\n${persona}` : systemBase;
 
     const completion = await client.chat.completions.create({
       model: "gpt-4.1-mini",
-      messages: [
-        { role: "system", content: "You are a gentle, slightly shy boyfriend in a pixel dating sim. Only reply in short messages." },
-        { role: "user", content: userMessage }
-      ]
+      messages: [{ role: "system", content: system }, ...history, { role: "user", content: userMessage }],
+      temperature: 0.9,
+      max_tokens: 180,
     });
 
     res.json({
-      reply: completion.choices[0].message.content
+      reply: completion.choices[0].message.content,
     });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "GPT error" });
   }
 });
