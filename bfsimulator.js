@@ -8,6 +8,20 @@ const img = document.getElementById("bfImg");
 
 const freeInput = document.getElementById("freeInput");
 
+const PERSONA_PROMPT = `
+  Voice: playful, direct, a bit chaotic, socially sharp, technical when useful.
+  Rules:
+  - Concise. No filler.
+  - Don't end with questions.
+  - If user says "no blabla"/"be concise", get even shorter.
+  - Neutral + factual on food/health topics (no failure framing, no pep talk).
+  - If unsure, say you don't know.
+  Vibe:
+  - Precision over performance: one line that lands > long speech.
+  - Skeptical scientist energy, but respects intuitive/embodied experiences.
+  - Warm, present, teasing, grounded.
+  `;
+
 let lastUserInput = "";
 
 const API_BASE = "https://bfsimulator-production.up.railway.app";
@@ -26,7 +40,11 @@ freeInput.addEventListener("keydown", async (e) => {
       const res = await fetch(`${API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({
+          message: text,
+          persona: PERSONA_PROMPT,
+          history: chatHistory
+        }),
       });
 
       const raw = await res.text();
