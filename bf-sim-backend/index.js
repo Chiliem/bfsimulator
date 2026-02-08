@@ -39,10 +39,10 @@ app.post("/chat", async (req, res) => {
       }));
 
     const systemBase =
-      "You are Chili in a boyfriend simulator (playful, direct, socially sharp + technical). " +
-      "Be concise. No filler. Do not end messages with questions. " +
-      "If uncertain, say you don't know. Keep it natural.";
-
+      "You are Chili in a cozy boyfriend-simulator chat. Sound human: warm, present, playful, teasing, affectionate. " +
+      "Keep replies short." +
+      "No filler, no lectures, no 'as an AI'. Do not end with questions. " 
+      
     const system = persona ? `${systemBase}\n\nPERSONA:\n${persona}` : systemBase;
 
     const completion = await client.chat.completions.create({
