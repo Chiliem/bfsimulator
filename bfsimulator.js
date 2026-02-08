@@ -4,9 +4,10 @@ const stage = document.getElementById("stage");
 
 const img = document.getElementById("bfImg");
 
-
-
 const freeInput = document.getElementById("freeInput");
+
+const chatHistory = [];
+const MAX_TURNS = 8;
 
 const PERSONA_PROMPT = `
   Voice: playful, direct, a bit chaotic, socially sharp, technical when useful.
