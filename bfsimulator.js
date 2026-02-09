@@ -52,7 +52,9 @@ function personaIntroduction() {
 
 ${stateBlock()}
 
-Greet the user. Welcome to date night. Mention happiness/damage naturally.`;
+Greet the user. Welcome to date night.
+Your tone and warmth should be influenced by the internal stats, but never mention or reveal them.
+`;
 }
 
 function personaOrderFood() {
@@ -60,7 +62,10 @@ function personaOrderFood() {
 
 ${stateBlock()}
 
-Reply to the user message, reflect happiness/damage in tone, and say it's time to order food.`;
+Reply to the user message.
+Let your tone, warmth, and energy be influenced by the internal stats, but never mention or reveal them.
+Then say it's time to order food.
+`;
 }
 
 function personaForStage() {
@@ -68,6 +73,10 @@ function personaForStage() {
   return personaOrderFood();
 }
 
+function applySentiment(label) {
+  if (label === "nice") happiness_state = Math.min(12, happiness_state + 1);
+  if (label === "mean") happiness_state = Math.max(0, happiness_state - 1);
+}
 
 
 const API_BASE = "https://bfsimulator-production.up.railway.app";
@@ -80,9 +89,24 @@ freeInput.addEventListener("keydown", async (e) => {
     if (!text) return;
     chatHistory.push({ role: "user", content: text });
 
+    // evaluate sentiment (fast model)
+    try {
+      const evalRes = await fetch(`${API_BASE}/evaluate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text })
+      });
+
+      const evalData = await evalRes.json();
+      applySentiment(evalData.label);
+    } catch {
+      // fail silently, keep state unchanged
+    }
+
     freeInput.value = "";
     document.querySelector(".bubble-text").innerText = "…";
 
+    
     try {
       const res = await fetch(`${API_BASE}/chat`, {
         method: "POST",
