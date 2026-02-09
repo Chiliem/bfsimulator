@@ -76,8 +76,35 @@ function personaForStage() {
 function applySentiment(label) {
   if (label === "nice") happiness_state = Math.min(12, happiness_state + 1);
   if (label === "mean") happiness_state = Math.max(0, happiness_state - 1);
+  updateMainImage();
 }
 
+function happinessTier(h) {
+  if (h <= 2) return 0;
+  if (h <= 5) return 1;
+  if (h <= 8) return 2;
+  return 3;
+}
+
+function damageTier(d) {
+  if (d <= 2) return 1;
+  if (d <= 5) return 2;
+  if (d <= 8) return 3;
+  return 4;
+}
+
+function emotionFromHappiness(h) {
+  // 0-2, 3-5, 6-8, 9-12 => cry, pout, neutral, smile
+  const emotions = ["cry", "pout", "neutral", "smile"];
+  return emotions[happinessTier(h)];
+}
+
+function updateMainImage() {
+  const emotion = emotionFromHappiness(happiness_state);
+  const n = damageTier(damage_state);
+  img.src = `images/${emotion} ${n}.jpg`;   // assumes images are in the same folder as the html/js
+  img.alt = `${emotion} ${n}`;
+}
 
 const API_BASE = "https://bfsimulator-production.up.railway.app";
 
@@ -145,7 +172,7 @@ freeInput.addEventListener("keydown", async (e) => {
 
 async function runIntro() {
   document.querySelector(".bubble-text").innerText = "…";
-
+  updateMainImage();
   try {
     const res = await fetch(`${API_BASE}/chat`, {
       method: "POST",
