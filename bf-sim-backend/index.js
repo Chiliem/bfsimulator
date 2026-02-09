@@ -47,7 +47,7 @@ app.post("/chat", async (req, res) => {
 
     const completion = await client.chat.completions.create({
       model: "gpt-4.1-mini",
-      messages: [{ role: "system", content: system }, ...history, { role: "user", content: userMessage }],
+      messages: [{ role: "system", content: system }, ...history],
       temperature: 0.9,
       max_tokens: 180,
     });
