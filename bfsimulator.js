@@ -143,3 +143,29 @@ freeInput.addEventListener("keydown", async (e) => {
   }
 });
 
+async function runIntro() {
+  document.querySelector(".bubble-text").innerText = "…";
+
+  try {
+    const res = await fetch(`${API_BASE}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: "", // no user input yet
+        persona: personaIntroduction(),
+        history: []
+      }),
+    });
+
+    const data = await res.json();
+    const reply = data.reply ?? "";
+    document.querySelector(".bubble-text").innerText = reply;
+
+    chatHistory.push({ role: "assistant", content: reply });
+  } catch {
+    document.querySelector(".bubble-text").innerText = "…";
+  }
+}
+
+runIntro();
+
