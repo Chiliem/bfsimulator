@@ -36,6 +36,39 @@ let punch_happiness = -1 // punch makes -1 happiness
 let kiss_damage = 0 // kiss does not change damage
 let kiss_happiness = 1 // kiss makes +1 happiness
 const game_stage = ['introduction', 'order food', 'watch movie', 'play league', 'favorite part of date night', 'flowers']
+let gameStageIndex = 0; // 0=introduction, 1=order food, ...
+function currentStage() {
+  return game_stage[gameStageIndex] ?? "introduction";
+}
+
+function stateBlock() {
+  return `game_stage: ${currentStage()}
+happiness_state: ${happiness_state}/12
+damage_state: ${damage_state}/12`;
+}
+
+function personaIntroduction() {
+  return `${PERSONA_PROMPT}
+
+${stateBlock()}
+
+Greet the user. Welcome to date night. Mention happiness/damage naturally.`;
+}
+
+function personaOrderFood() {
+  return `${PERSONA_PROMPT}
+
+${stateBlock()}
+
+Reply to the user message, reflect happiness/damage in tone, and say it's time to order food.`;
+}
+
+function personaForStage() {
+  if (currentStage() === "introduction") return personaIntroduction();
+  return personaOrderFood();
+}
+
+
 
 const API_BASE = "https://bfsimulator-production.up.railway.app";
 
@@ -45,6 +78,7 @@ freeInput.addEventListener("keydown", async (e) => {
 
     const text = freeInput.value.trim();
     if (!text) return;
+    chatHistory.push({ role: "user", content: text });
 
     freeInput.value = "";
     document.querySelector(".bubble-text").innerText = "…";
@@ -55,7 +89,7 @@ freeInput.addEventListener("keydown", async (e) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: text,
-          persona: PERSONA_PROMPT,
+          persona: personaForStage(),
           history: chatHistory
         }),
       });
@@ -70,9 +104,13 @@ freeInput.addEventListener("keydown", async (e) => {
         return;
       }
 
-      const data = JSON.parse(raw);
-      document.querySelector(".bubble-text").innerText =
-        data.reply ?? "(no reply field)";
+    const data = JSON.parse(raw);
+    const reply = data.reply ?? "(no reply field)";
+    document.querySelector(".bubble-text").innerText = reply;
+
+    chatHistory.push({ role: "assistant", content: reply });
+
+    if (currentStage() === "introduction") gameStageIndex = 1; // move to "order food"
     } catch (err) {
       console.error(err);
       document.querySelector(".bubble-text").innerText =
