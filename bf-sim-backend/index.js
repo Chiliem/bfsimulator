@@ -90,6 +90,34 @@ app.post("/evaluate", async (req, res) => {
       }
     });
 
+app.post("/foodcheck", async (req, res) => {
+  try {
+    const text = String(req.body?.message ?? "");
+
+    const completion = await client.chat.completions.create({
+      model: "gpt-4.1-mini", // fast + cheap (same as your evaluate)
+      temperature: 0,
+      max_tokens: 3,
+      messages: [
+        {
+          role: "system",
+          content:
+            "Decide if the user's message is a food order. Reply with exactly one word: order or not_order. " +
+            "Say 'order' if they specify food/drink items, quantities, modifiers (no onions, extra sauce), restaurant names, or delivery pickup instructions. " +
+            "Otherwise 'not_order'. No punctuation."
+        },
+        { role: "user", content: text }
+      ]
+    });
+
+    const label = completion.choices[0].message.content.toLowerCase().trim();
+    res.json({ label: label === "order" ? "order" : "not_order" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ label: "not_order" });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Server running on", PORT);
