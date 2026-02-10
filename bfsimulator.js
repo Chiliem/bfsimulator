@@ -28,6 +28,7 @@ Style rules:
 
 `;
 
+
 let lastUserInput = "";
 let happiness_state = 7 // 0-12 scale of Chili's happiness. Affects his tone. User actions can increase or decrease it.
 let damage_state = 0 // 0-12 scale of how "damaged" Chili is. Higher damage gives different dialogue and image.
@@ -35,8 +36,11 @@ let punch_damage = 1 // punch deals +1 damage
 let punch_happiness = -1 // punch makes -1 happiness
 let kiss_damage = 0 // kiss does not change damage
 let kiss_happiness = 1 // kiss makes +1 happiness
-const game_stage = ['introduction', 'order food', 'watch movie', 'play league', 'favorite part of date night', 'flowers']
+const game_stage = ['introduction', 'order food', 'gain punch', 'watch movie', 'add kiss', 'play league', 'favorite part of date night', 'flowers']
 let gameStageIndex = 0; // 0=introduction, 1=order food, ...
+let order_food_detected = false;
+
+
 function currentStage() {
   return game_stage[gameStageIndex] ?? "introduction";
 }
@@ -44,7 +48,8 @@ function currentStage() {
 function stateBlock() {
   return `game_stage: ${currentStage()}
 happiness_state: ${happiness_state}/12
-damage_state: ${damage_state}/12`;
+damage_state: ${damage_state}/12
+order_food_detected: ${order_food_detected}`;
 }
 
 function personaIntroduction() {
@@ -106,6 +111,8 @@ function updateMainImage() {
   img.alt = `${emotion} ${n}`;
 }
 
+
+
 const API_BASE = "https://bfsimulator-production.up.railway.app";
 
 freeInput.addEventListener("keydown", async (e) => {
@@ -132,7 +139,18 @@ freeInput.addEventListener("keydown", async (e) => {
 
     freeInput.value = "";
     document.querySelector(".bubble-text").innerText = "…";
-
+    
+    // food-order detection (only in "order food" stage)
+    if (currentStage() === "order food") {
+      try {
+        order_food_detected = await detectFoodOrder(text);
+        if (order_food_detected) {
+          gameStageIndex = 2; // move to "gain punch" (or whatever your next stage is)
+        }
+      } catch {
+        // fail silently
+      }
+    }
     
     try {
       const res = await fetch(`${API_BASE}/chat`, {
@@ -169,6 +187,16 @@ freeInput.addEventListener("keydown", async (e) => {
     }
   }
 });
+
+async function detectFoodOrder(text) {
+  const r = await fetch(`${API_BASE}/foodcheck`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: text })
+  });
+  const j = await r.json();
+  return j.label === "order";
+}
 
 async function runIntro() {
   document.querySelector(".bubble-text").innerText = "…";
