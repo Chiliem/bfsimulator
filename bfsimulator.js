@@ -73,9 +73,29 @@ Then say it's time to order food.
 `;
 }
 
+function personaGainPunch() {
+  return `${PERSONA_PROMPT}
+
+${stateBlock()}
+
+Reply to the user message.
+Let your tone, warmth, and energy be influenced by the internal stats, but never mention or reveal them.
+Mention that a new button just appeared (the punch button), and that you have no idea what it does.
+Do not end with questions.
+`;
+}
+
 function personaForStage() {
   if (currentStage() === "introduction") return personaIntroduction();
+  if (currentStage() === "gain punch") return personaGainPunch();
   return personaOrderFood();
+}
+
+
+function setSkillVisible(skill, visible) {
+  const btn = document.querySelector(`.skill-btn[data-skill="${skill}"]`);
+  if (!btn) return;
+  btn.classList.toggle("disabled", !visible);
 }
 
 function applySentiment(label) {
@@ -140,17 +160,18 @@ freeInput.addEventListener("keydown", async (e) => {
     freeInput.value = "";
     document.querySelector(".bubble-text").innerText = "…";
     
-    // food-order detection (only in "order food" stage)
     if (currentStage() === "order food") {
       try {
         order_food_detected = await detectFoodOrder(text);
         if (order_food_detected) {
-          gameStageIndex = 2; // move to "gain punch" (or whatever your next stage is)
+          gameStageIndex = 2;          // gain punch
+          setSkillVisible("punch", true);
+          setSkillVisible("kiss", false);
         }
       } catch {
         // fail silently
       }
-    }
+}
     
     try {
       const res = await fetch(`${API_BASE}/chat`, {
@@ -201,6 +222,8 @@ async function detectFoodOrder(text) {
 async function runIntro() {
   document.querySelector(".bubble-text").innerText = "…";
   updateMainImage();
+  setSkillVisible("punch", false);
+  setSkillVisible("kiss", false);
   try {
     const res = await fetch(`${API_BASE}/chat`, {
       method: "POST",
