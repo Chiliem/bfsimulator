@@ -40,6 +40,7 @@ const game_stage = ['introduction', 'order food', 'gain punch', 'watch movie', '
 let gameStageIndex = 0; // 0=introduction, 1=order food, ...
 let order_food_detected = false;
 let punchModeActive = false;
+let kissModeActive = false;
 
 let pendingMovieLabel = "none"; // "genre" | "title" | "none"
 let pendingMovieText = "";
@@ -69,6 +70,37 @@ LENGTH LIMITS (must follow):
 - reply MUST be 1-2 lines (25 words)
 - Never write paragraphs. Never explain. No narration.
 `;
+}
+
+function personaForStage() {
+  switch (currentStage()) {
+    case "introduction":
+      return personaIntroduction();
+
+    case "order food":
+      return personaOrderFood();
+
+    case "gain punch":
+      return personaGainPunch();
+
+    case "watch movie":
+      return personaWatchMovie();
+
+    case "add kiss":
+      return personaAddKiss?.();
+
+    case "play league":
+      return personaPlayLeague?.();
+
+    case "favorite part of date night":
+      return personaFavoritePart?.();
+
+    case "flowers":
+      return personaFlowers?.();
+
+    default:
+      throw new Error(`Unknown stage: ${currentStage()}`);
+  }
 }
 
 function personaIntroduction() {
@@ -104,36 +136,7 @@ Do not end with questions.
 `;
 }
 
-function personaForStage() {
-  switch (currentStage()) {
-    case "introduction":
-      return personaIntroduction();
 
-    case "order food":
-      return personaOrderFood();
-
-    case "gain punch":
-      return personaGainPunch();
-
-    case "watch movie":
-      return personaWatchMovie();
-
-    case "add kiss":
-      return personaAddKiss?.();
-
-    case "play league":
-      return personaPlayLeague?.();
-
-    case "favorite part of date night":
-      return personaFavoritePart?.();
-
-    case "flowers":
-      return personaFlowers?.();
-
-    default:
-      throw new Error(`Unknown stage: ${currentStage()}`);
-  }
-}
 
 function personaWatchMovie() {
   return `${PERSONA_PROMPT}
@@ -147,6 +150,18 @@ Ask what movie genre we should watch until the user gives either:
 - or a real movie title.
 
 Stay short.
+`;
+}
+
+function personaAddKiss() {
+  return `${PERSONA_PROMPT}
+
+${stateBlock()}
+
+Reply to the user message.
+Let your tone, warmth, and energy be influenced by the internal stats, but never mention or reveal them.
+Mention that a new button just appeared, and that you have no idea what it does.
+Do not end with questions.
 `;
 }
 
@@ -223,6 +238,7 @@ async function sendUserTurn(text) {
           const movieLabel = await detectMovieChoice(text);
           if (movieLabel === "genre" || movieLabel === "title") {
             gameStageIndex = 4; // move to next stage (add kiss)
+            setSkillVisible("kiss", true);
           }
         } catch {
           // fail silently
@@ -319,6 +335,7 @@ freeInput.addEventListener("keydown", async (e) => {
     // If movie was already decided earlier, skip "watch movie" stage when we reach it
     if (pendingMovieLabel !== "none" && gameStageIndex === 3) {
       gameStageIndex = 4; // add kiss
+      setSkillVisible("kiss", true);
     }
 
     if (currentStage() === "order food") {
@@ -332,6 +349,17 @@ freeInput.addEventListener("keydown", async (e) => {
       } catch {
         // fail silently
       }
+    if (currentStage() === "watch movie") {
+      try {
+        const movieLabel = await detectMovieChoice(text);
+        if (movieLabel === "genre" || movieLabel === "title") {
+          pendingMovieLabel = movieLabel;
+          pendingMovieText = text;
+          gameStageIndex = 4; // add kiss
+          setSkillVisible("kiss", true);
+        }
+      } catch {}
+    }
 }
     
     try {
@@ -430,13 +458,32 @@ if (punchBtn) {
 }
 
 img.addEventListener("click", () => {
-  if (!punchModeActive) return;
+  if (punchModeActive) {
+    damage_state = Math.min(12, damage_state + punch_damage);
+    happiness_state = Math.max(0, happiness_state + punch_happiness);
+    updateMainImage();
+    sendUserTurn("[PUNCH]");
+    return;
+  }
 
-  // stats first so personaForStage() sees updated state
-  damage_state = Math.min(12, damage_state + punch_damage);
-  happiness_state = Math.max(0, happiness_state + punch_happiness);
-  updateMainImage();
-
-  // real user turn
-  sendUserTurn("[PUNCH]");
+  if (kissModeActive) {
+    damage_state = Math.min(12, damage_state + kiss_damage);
+    happiness_state = Math.min(12, happiness_state + kiss_happiness);
+    updateMainImage();
+    sendUserTurn("[KISS]");
+    return;
+  }
 });
+
+const kissBtn = document.querySelector('.skill-btn[data-skill="kiss"]');
+
+if (kissBtn) {
+  kissBtn.addEventListener("click", () => {
+    kissModeActive = !kissModeActive;
+    // optional: if kiss turns on, turn punch off
+    if (kissModeActive) {
+      punchModeActive = false;
+      stage.classList.remove("punch-mode");
+    }
+  });
+}
