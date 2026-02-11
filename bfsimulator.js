@@ -39,7 +39,7 @@ let kiss_happiness = 1 // kiss makes +1 happiness
 const game_stage = ['introduction', 'order food', 'gain punch', 'watch movie', 'add kiss', 'play league', 'favorite part of date night', 'flowers']
 let gameStageIndex = 0; // 0=introduction, 1=order food, ...
 let order_food_detected = false;
-
+let punchModeActive = false;
 
 function currentStage() {
   return game_stage[gameStageIndex] ?? "introduction";
@@ -255,7 +255,7 @@ if (punchBtn) {
 
     if (punchModeActive) {
       document.body.style.cursor =
-        'url("image/punch_icon.png") 32 32, auto';
+        'url("images/punch_icon.png") 32 32, auto';
     } else {
       document.body.style.cursor = "auto";
     }

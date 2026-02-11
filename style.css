@@ -95,3 +95,14 @@ body {
 
   resize: none; /* keeps the pixel-clean look */
 }
+
+/* Punch cursor mode */
+#stage.punch-mode,
+#stage.punch-mode * {
+  cursor: url("./images/punch_icon.png") 32 32, auto;
+}
+
+/* Keep typing cursor inside the textbox */
+#stage.punch-mode .free-input {
+  cursor: text;
+}
