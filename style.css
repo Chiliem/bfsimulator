@@ -75,7 +75,6 @@ body {
   width: 140px;
   height: auto;
   image-rendering: pixelated;
-  cursor: pointer;
 }
 
 .skill-btn.disabled {
@@ -105,7 +104,3 @@ body {
   cursor: url("./images/punch_icon_64.png") 32 32, auto;
 }
 
-/* Keep typing cursor inside the textbox */
-#stage.punch-mode .free-input {
-  cursor: text;
-}
