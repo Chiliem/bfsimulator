@@ -80,7 +80,7 @@ ${stateBlock()}
 
 Reply to the user message.
 Let your tone, warmth, and energy be influenced by the internal stats, but never mention or reveal them.
-Mention that a new button just appeared (the punch button), and that you have no idea what it does.
+Mention that a new button just appeared, and that you have no idea what it does.
 Do not end with questions.
 `;
 }
@@ -247,3 +247,17 @@ async function runIntro() {
 
 runIntro();
 
+const punchBtn = document.querySelector('.skill-btn[data-skill="punch"]');
+
+if (punchBtn) {
+  punchBtn.addEventListener("click", () => {
+    punchModeActive = !punchModeActive;
+
+    if (punchModeActive) {
+      document.body.style.cursor =
+        'url("image/punch_icon.png") 32 32, auto';
+    } else {
+      document.body.style.cursor = "auto";
+    }
+  });
+}
