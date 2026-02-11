@@ -80,7 +80,7 @@ ${stateBlock()}
 
 Reply to the user message.
 Let your tone, warmth, and energy be influenced by the internal stats, but never mention or reveal them.
-Prioritize asking what food item do we want to order until we get an exact item.
+MUST ask what exact food item do we want to order until we get an exact item.
 `
 }
 
