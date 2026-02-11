@@ -97,9 +97,34 @@ Do not end with questions.
 }
 
 function personaForStage() {
-  if (currentStage() === "introduction") return personaIntroduction();
-  if (currentStage() === "gain punch") return personaGainPunch();
-  return personaOrderFood();
+  switch (currentStage()) {
+    case "introduction":
+      return personaIntroduction();
+
+    case "order food":
+      return personaOrderFood();
+
+    case "gain punch":
+      return personaGainPunch();
+
+    case "watch movie":
+      return personaWatchMovie();
+
+    case "add kiss":
+      return personaAddKiss?.();
+
+    case "play league":
+      return personaPlayLeague?.();
+
+    case "favorite part of date night":
+      return personaFavoritePart?.();
+
+    case "flowers":
+      return personaFlowers?.();
+
+    default:
+      throw new Error(`Unknown stage: ${currentStage()}`);
+  }
 }
 
 function personaWatchMovie() {
