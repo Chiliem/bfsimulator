@@ -212,7 +212,7 @@ async function sendUserTurn(text) {
     punchModeActive = false;
     stage.classList.remove("punch-mode");
   }
-  
+
   if (currentStage() === "introduction") gameStageIndex = 1; // keep your existing behavior
     if (currentStage() === "gain punch") gameStageIndex = 3;
       if (currentStage() === "watch movie") {
@@ -264,6 +264,11 @@ freeInput.addEventListener("keydown", async (e) => {
 
     const text = freeInput.value.trim();
     if (!text) return;
+    if (punchModeActive) {
+      punchModeActive = false;
+      stage.classList.remove("punch-mode");
+    }
+
     chatHistory.push({ role: "user", content: text });
 
     // evaluate sentiment (fast model)
