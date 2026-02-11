@@ -255,3 +255,12 @@ if (punchBtn) {
     stage.classList.toggle("punch-mode", punchModeActive);
   });
 }
+
+img.addEventListener("click", () => {
+  if (!punchModeActive) return;
+
+  // deal 1 damage, cap at 12
+  damage_state = Math.min(12, damage_state + punch_damage);
+
+  updateMainImage();
+});
