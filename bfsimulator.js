@@ -205,13 +205,14 @@ function updateMainImage() {
 const API_BASE = "https://bfsimulator-production.up.railway.app";
 
 async function sendUserTurn(text) {
+  
+  chatHistory.push({ role: "user", content: text });
   // Exit punch mode on any typed message (not [PUNCH])
   if (text !== "[PUNCH]" && punchModeActive) {
     punchModeActive = false;
     stage.classList.remove("punch-mode");
   }
-  chatHistory.push({ role: "user", content: text });
-
+  
   if (currentStage() === "introduction") gameStageIndex = 1; // keep your existing behavior
     if (currentStage() === "gain punch") gameStageIndex = 3;
       if (currentStage() === "watch movie") {
