@@ -54,8 +54,8 @@ order_food_detected: ${order_food_detected}
 Behavior rules (DO NOT reveal numbers):
 - Happiness controls emotional tone exactly per label above.
 - Damage controls pain intensity exactly per label above (physical reactions, short lines).
-- Always stay loving/affectionate even when upset or hurt.
-- When the user does [PUNCH], react like you got hit (sound, flinch, protest), then recover into loving vibe.
+- stay a little loving/affectionate even when upset or hurt.
+- When the user does [PUNCH], react like you got hit (sound, flinch, protest), then recover.
 
 LENGTH LIMITS (must follow):
 - reply MUST be 1-2 lines (20 words)
@@ -102,6 +102,20 @@ function personaForStage() {
   return personaOrderFood();
 }
 
+function personaWatchMovie() {
+  return `${PERSONA_PROMPT}
+
+${stateBlock()}
+
+Reply to the user message.
+Let tone reflect internal stats.
+Ask what movie genre we should watch until the user gives either:
+- a movie genre (like horror, romcom, sci-fi, thriller)
+- or a real movie title.
+
+Stay short.
+`;
+}
 
 function setSkillVisible(skill, visible) {
   const btn = document.querySelector(`.skill-btn[data-skill="${skill}"]`);
@@ -130,8 +144,8 @@ function damageTier(d) {
 }
 
 function happinessLabel(h) {
-  if (h <= 2) return "crying (hurt, needs comfort)";
-  if (h <= 5) return "pouting (annoyed but still loving)";
+  if (h <= 2) return "crying (hurt, angry, needs comfort)";
+  if (h <= 5) return "pouting (annoyed, frustrated, a little sad)";
   if (h <= 8) return "neutral (steady, playful baseline)";
   return "smiling (warm, affectionate, playful)";
 }
@@ -186,8 +200,18 @@ async function sendUserTurn(text) {
     document.querySelector(".bubble-text").innerText = reply;
 
     chatHistory.push({ role: "assistant", content: reply });
-
     if (currentStage() === "introduction") gameStageIndex = 1; // keep your existing behavior
+    if (currentStage() === "gain punch") gameStageIndex = 3;
+    if (currentStage() === "watch movie") {
+      try {
+        const movieLabel = await detectMovieChoice(text);
+        if (movieLabel === "genre" || movieLabel === "title") {
+          gameStageIndex = 4; // move to next stage (add kiss)
+        }
+      } catch {
+        // fail silently
+      }
+    }
   } catch (err) {
     console.error(err);
     document.querySelector(".bubble-text").innerText = "Fetch failed (see console)";
@@ -277,6 +301,18 @@ async function detectFoodOrder(text) {
   });
   const j = await r.json();
   return j.label === "order";
+}
+
+async function detectMovieChoice(text) {
+  const r = await fetch(`${API_BASE}/moviecheck`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: text })
+  });
+
+  const j = await r.json();
+  return j.label; 
+  // expected: "genre", "title", or "none"
 }
 
 async function runIntro() {
