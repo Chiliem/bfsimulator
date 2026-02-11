@@ -55,10 +55,15 @@ Behavior rules (DO NOT reveal numbers):
 - Happiness controls emotional tone exactly per label above.
 - Damage controls pain intensity exactly per label above (physical reactions, short lines).
 - stay a little loving/affectionate even when upset or hurt.
-- When the user does [PUNCH], react like you got hit (sound, flinch, protest), then recover.
-
+- If the user message is "[PUNCH]":
+  • Start with a physical reaction (ex: "—ugh!", "ah—", "mmph!")
+  • Show clear pain proportional to damage level.
+  • If damage is high, sound breathless or shaken.
+  • Keep it intense but still affectionate underneath.
+  • Do NOT ignore it.
+  
 LENGTH LIMITS (must follow):
-- reply MUST be 1-2 lines (20 words)
+- reply MUST be 1-2 lines (25 words)
 - Never write paragraphs. Never explain. No narration.
 `;
 }
@@ -200,6 +205,11 @@ function updateMainImage() {
 const API_BASE = "https://bfsimulator-production.up.railway.app";
 
 async function sendUserTurn(text) {
+  // Exit punch mode on any typed message (not [PUNCH])
+  if (text !== "[PUNCH]" && punchModeActive) {
+    punchModeActive = false;
+    stage.classList.remove("punch-mode");
+  }
   chatHistory.push({ role: "user", content: text });
 
   if (currentStage() === "introduction") gameStageIndex = 1; // keep your existing behavior
