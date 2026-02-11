@@ -41,6 +41,9 @@ let gameStageIndex = 0; // 0=introduction, 1=order food, ...
 let order_food_detected = false;
 let punchModeActive = false;
 
+let pendingMovieLabel = "none"; // "genre" | "title" | "none"
+let pendingMovieText = "";
+
 function currentStage() {
   return game_stage[gameStageIndex] ?? "introduction";
 }
@@ -288,6 +291,36 @@ freeInput.addEventListener("keydown", async (e) => {
     freeInput.value = "";
     document.querySelector(".bubble-text").innerText = "…";
     
+    // Pin early "food order" mentions (even if we're not in the stage yet)
+    if (!order_food_detected) {
+      try {
+        order_food_detected = await detectFoodOrder(text);
+      } catch {}
+    }
+
+    // Pin early "movie choice" mentions (even if we're not in the stage yet)
+    if (pendingMovieLabel === "none") {
+      try {
+        const lbl = await detectMovieChoice(text);
+        if (lbl === "genre" || lbl === "title") {
+          pendingMovieLabel = lbl;
+          pendingMovieText = text;
+        }
+      } catch {}
+    }
+
+    // If food was already decided earlier, skip "order food" stage when we reach it
+    if (order_food_detected && gameStageIndex <= 1) {
+      gameStageIndex = 2; // gain punch
+      setSkillVisible("punch", true);
+      setSkillVisible("kiss", false);
+    }
+
+    // If movie was already decided earlier, skip "watch movie" stage when we reach it
+    if (pendingMovieLabel !== "none" && gameStageIndex === 3) {
+      gameStageIndex = 4; // add kiss
+    }
+
     if (currentStage() === "order food") {
       try {
         order_food_detected = await detectFoodOrder(text);
