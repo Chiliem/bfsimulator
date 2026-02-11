@@ -261,6 +261,7 @@ img.addEventListener("click", () => {
 
   // deal 1 damage, cap at 12
   damage_state = Math.min(12, damage_state + punch_damage);
+  happiness_state = Math.max(0, happiness_state + punch_happiness);
 
   updateMainImage();
 });
