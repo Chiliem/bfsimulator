@@ -222,7 +222,7 @@ async function detectFoodOrder(text) {
 async function runIntro() {
   document.querySelector(".bubble-text").innerText = "…";
   updateMainImage();
-  setSkillVisible("punch", false);
+  setSkillVisible("punch", true);
   setSkillVisible("kiss", false);
   try {
     const res = await fetch(`${API_BASE}/chat`, {
