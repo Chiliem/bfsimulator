@@ -255,7 +255,7 @@ if (punchBtn) {
 
     if (punchModeActive) {
       document.body.style.cursor =
-        'url("images/punch_icon.png") 32 32, auto';
+        'url("images/punch.png") 32 32, auto';
     } else {
       document.body.style.cursor = "auto";
     }
