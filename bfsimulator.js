@@ -251,14 +251,7 @@ const punchBtn = document.querySelector('.skill-btn[data-skill="punch"]');
 
 if (punchBtn) {
   punchBtn.addEventListener("click", () => {
-    console.log("PUNCH CLICKED");
     punchModeActive = !punchModeActive;
-
-    if (punchModeActive) {
-      document.body.style.cursor =
-        'url("./images/punch_icon_64.png") 32 32, auto';
-    } else {
-      document.body.style.cursor = "auto";
-    }
+    stage.classList.toggle("punch-mode", punchModeActive);
   });
 }
