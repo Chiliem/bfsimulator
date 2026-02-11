@@ -201,6 +201,20 @@ const API_BASE = "https://bfsimulator-production.up.railway.app";
 
 async function sendUserTurn(text) {
   chatHistory.push({ role: "user", content: text });
+
+  if (currentStage() === "introduction") gameStageIndex = 1; // keep your existing behavior
+    if (currentStage() === "gain punch") gameStageIndex = 3;
+      if (currentStage() === "watch movie") {
+        try {
+          const movieLabel = await detectMovieChoice(text);
+          if (movieLabel === "genre" || movieLabel === "title") {
+            gameStageIndex = 4; // move to next stage (add kiss)
+          }
+        } catch {
+          // fail silently
+        }
+      }
+
   document.querySelector(".bubble-text").innerText = "…";
 
   try {
@@ -225,18 +239,7 @@ async function sendUserTurn(text) {
     document.querySelector(".bubble-text").innerText = reply;
 
     chatHistory.push({ role: "assistant", content: reply });
-    if (currentStage() === "introduction") gameStageIndex = 1; // keep your existing behavior
-    if (currentStage() === "gain punch") gameStageIndex = 3;
-    if (currentStage() === "watch movie") {
-      try {
-        const movieLabel = await detectMovieChoice(text);
-        if (movieLabel === "genre" || movieLabel === "title") {
-          gameStageIndex = 4; // move to next stage (add kiss)
-        }
-      } catch {
-        // fail silently
-      }
-    }
+    
   } catch (err) {
     console.error(err);
     document.querySelector(".bubble-text").innerText = "Fetch failed (see console)";
