@@ -99,7 +99,7 @@ body {
 /* Punch cursor mode */
 #stage.punch-mode,
 #stage.punch-mode * {
-  cursor: url("./images/punch_icon.png") 32 32, auto;
+  cursor: url("./images/punch_icon_64.png") 32 32, auto;
 }
 
 /* Keep typing cursor inside the textbox */
