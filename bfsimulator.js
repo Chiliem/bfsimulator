@@ -135,6 +135,41 @@ function updateMainImage() {
 
 const API_BASE = "https://bfsimulator-production.up.railway.app";
 
+async function sendUserTurn(text) {
+  chatHistory.push({ role: "user", content: text });
+  document.querySelector(".bubble-text").innerText = "…";
+
+  try {
+    const res = await fetch(`${API_BASE}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: text,
+        persona: personaForStage(),
+        history: chatHistory
+      }),
+    });
+
+    const raw = await res.text();
+    if (!res.ok) {
+      document.querySelector(".bubble-text").innerText = `Server error (${res.status})`;
+      return;
+    }
+
+    const data = JSON.parse(raw);
+    const reply = data.reply ?? "(no reply field)";
+    document.querySelector(".bubble-text").innerText = reply;
+
+    chatHistory.push({ role: "assistant", content: reply });
+
+    if (currentStage() === "introduction") gameStageIndex = 1; // keep your existing behavior
+  } catch (err) {
+    console.error(err);
+    document.querySelector(".bubble-text").innerText = "Fetch failed (see console)";
+  }
+}
+
+
 freeInput.addEventListener("keydown", async (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
@@ -259,9 +294,11 @@ if (punchBtn) {
 img.addEventListener("click", () => {
   if (!punchModeActive) return;
 
-  // deal 1 damage, cap at 12
+  // stats first so personaForStage() sees updated state
   damage_state = Math.min(12, damage_state + punch_damage);
   happiness_state = Math.max(0, happiness_state + punch_happiness);
-
   updateMainImage();
+
+  // real user turn
+  sendUserTurn("[PUNCH]");
 });
