@@ -47,9 +47,16 @@ function currentStage() {
 
 function stateBlock() {
   return `game_stage: ${currentStage()}
-happiness_state: ${happiness_state}/12
-damage_state: ${damage_state}/12
-order_food_detected: ${order_food_detected}`;
+happiness_state: ${happiness_state}/12 (${happinessLabel(happiness_state)})
+damage_state: ${damage_state}/12 (${damageLabel(damage_state)})
+order_food_detected: ${order_food_detected}
+
+Behavior rules (DO NOT reveal numbers):
+- Happiness controls emotional tone exactly per label above.
+- Damage controls pain intensity exactly per label above (physical reactions, short lines).
+- Always stay loving/affectionate even when upset or hurt.
+- When the user does [PUNCH], react like you got hit (sound, flinch, protest), then recover into loving vibe.
+`;
 }
 
 function personaIntroduction() {
@@ -116,6 +123,20 @@ function damageTier(d) {
   if (d <= 5) return 2;
   if (d <= 8) return 3;
   return 4;
+}
+
+function happinessLabel(h) {
+  if (h <= 2) return "crying (hurt, needs comfort)";
+  if (h <= 5) return "pouting (annoyed but still loving)";
+  if (h <= 8) return "neutral (steady, playful baseline)";
+  return "smiling (warm, affectionate, playful)";
+}
+
+function damageLabel(d) {
+  if (d <= 2) return "not damaged (fine)";
+  if (d <= 5) return "a bit bruised (wincing sometimes)";
+  if (d <= 8) return "very bruised (obvious pain)";
+  return "really bruised up (struggling, tender)";
 }
 
 function emotionFromHappiness(h) {
