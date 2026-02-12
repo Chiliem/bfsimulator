@@ -104,3 +104,8 @@ body {
   cursor: url("./images/punch_icon_64.png") 32 32, auto;
 }
 
+/* Kiss cursor mode */
+#stage.kiss-mode,
+#stage.kiss-mode * {
+  cursor: url("./images/kiss icon.png") 32 32, auto;
+}
