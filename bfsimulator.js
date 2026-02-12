@@ -137,6 +137,7 @@ ${stateBlock()}
 
 Reply to the user message.
 Let your tone, warmth, and energy be influenced by the internal stats, but never mention or reveal them.
+Offer to order food.
 MUST ask what exact food item do we want to order until we get an exact item.
 `
 }
@@ -408,6 +409,7 @@ freeInput.addEventListener("keydown", async (e) => {
     chatHistory.push({ role: "assistant", content: reply });
 
     if (currentStage() === "introduction") gameStageIndex = 1; // move to "order food"
+    if (currentStage() === "gain punch") gameStageIndex = 3;   // move to "watch movie"
     } catch (err) {
       console.error(err);
       document.querySelector(".bubble-text").innerText =
