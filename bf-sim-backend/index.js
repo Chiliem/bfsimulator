@@ -118,6 +118,35 @@ app.post("/foodcheck", async (req, res) => {
   }
 });
 
+app.post("/moviecheck", async (req, res) => {
+  try {
+    const text = String(req.body?.message ?? "");
+
+    const completion = await client.chat.completions.create({
+      model: "gpt-4.1-mini",
+      temperature: 0,
+      max_tokens: 5,
+      messages: [
+        {
+          role: "system",
+          content:
+            "Classify the user's message as exactly one word: genre, title, or none. " +
+            "Reply 'genre' if they name a movie genre (horror, romcom, romance, comedy, thriller, action, sci-fi, drama, anime, etc.). " +
+            "Reply 'title' if they name a specific real movie title. " +
+            "Otherwise reply 'none'. No punctuation. No explanation."
+        },
+        { role: "user", content: text }
+      ]
+    });
+
+    const label = completion.choices[0].message.content.toLowerCase().trim();
+    res.json({ label: (label === "genre" || label === "title") ? label : "none" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ label: "none" });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Server running on", PORT);
