@@ -366,6 +366,8 @@ freeInput.addEventListener("keydown", async (e) => {
       } catch {
         // fail silently
       }
+    }
+
     if (currentStage() === "watch movie") {
       try {
         const movieLabel = await detectMovieChoice(text);
@@ -376,9 +378,8 @@ freeInput.addEventListener("keydown", async (e) => {
           setSkillVisible("kiss", true);
         }
       } catch {}
-    }
-}
     
+    }
     try {
       const res = await fetch(`${API_BASE}/chat`, {
         method: "POST",
