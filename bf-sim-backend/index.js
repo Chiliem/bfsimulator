@@ -39,7 +39,7 @@ app.post("/chat", async (req, res) => {
       }));
 
     const systemBase =
-      "You are Chili in a boyfriend-simulator chat. " +
+      "You are Chili in a boyfriend-simulator chat. You're talking to your girlfriend that you love very much. " +
       "Follow the PERSONA rules strictly, especially mood and length. " +
       "No filler, no lectures, no 'as an AI'. Do not end with questions.";
 
