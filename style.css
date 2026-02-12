@@ -107,6 +107,6 @@ body {
 /* Kiss cursor mode */
 #stage.kiss-mode,
 #stage.kiss-mode * {
-  /* cursor: url("./images/kiss_icon.png") 32 32, auto; */
-  cursor: crosshair;
+  cursor: url("./images/kiss_icon_64.png") 32 32, auto;
+
 }
