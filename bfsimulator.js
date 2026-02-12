@@ -472,8 +472,12 @@ const punchBtn = document.querySelector('.skill-btn[data-skill="punch"]');
 
 if (punchBtn) {
   punchBtn.addEventListener("click", () => {
-    punchModeActive = !punchModeActive;
-    stage.classList.toggle("punch-mode", punchModeActive);
+    // Always leave kiss mode
+    kissModeActive = false;
+
+    // Activate punch mode
+    punchModeActive = true;
+    stage.classList.add("punch-mode");
   });
 }
 
@@ -500,11 +504,13 @@ const kissBtn = document.querySelector('.skill-btn[data-skill="kiss"]');
 
 if (kissBtn) {
   kissBtn.addEventListener("click", () => {
-    kissModeActive = !kissModeActive;
-    // optional: if kiss turns on, turn punch off
-    if (kissModeActive) {
-      punchModeActive = false;
-      stage.classList.remove("punch-mode");
-    }
+
+    // Always leave punch mode
+    punchModeActive = false;
+    stage.classList.remove("punch-mode");
+
+    // Activate kiss mode (no toggle ambiguity)
+    kissModeActive = true;
+
   });
 }
