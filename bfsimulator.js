@@ -48,8 +48,27 @@ let kissModeActive = false;
 let pendingMovieLabel = "none"; // "genre" | "title" | "none"
 let pendingMovieText = "";
 
+let punchUnlocked = false;
+let kissUnlocked = false;
+
+function syncSkillUnlocks() {
+  // If we ever pass food (stage index >= 2), punch is unlocked forever
+  if (gameStageIndex >= 2) punchUnlocked = true;
+
+  // If we ever pass movie (stage index >= 4), kiss is unlocked forever
+  if (gameStageIndex >= 4) kissUnlocked = true;
+
+  setSkillVisible("punch", punchUnlocked);
+  setSkillVisible("kiss", kissUnlocked);
+}
+
 function currentStage() {
   return game_stage[gameStageIndex] ?? "introduction";
+}
+
+function setStageIndex(i) {
+  gameStageIndex = i;
+  syncSkillUnlocks();
 }
 
 function stateBlock() {
@@ -279,16 +298,13 @@ function updateMainImage() {
 async function advanceStageOnTurn(text) {
   // Rule: if we're in the kissing stage, ANY user turn goes to next stage immediately
   if (currentStage() === "add kiss") {
-    gameStageIndex = 5; // "play league"
-    kissModeActive = false;
-    stage.classList.remove("kiss-mode");
-    setSkillVisible("kiss", false);
+    setStageIndex(5); // "play league"
     return;
   }
 
   // Intro -> Order food (one-time progression)
   if (currentStage() === "introduction") {
-    gameStageIndex = 1;
+    setStageIndex(1);
     return;
   }
 
@@ -297,8 +313,7 @@ async function advanceStageOnTurn(text) {
     try {
       order_food_detected = await detectFoodOrder(text);
       if (order_food_detected) {
-        gameStageIndex = 2; // "gain punch"
-        setSkillVisible("punch", true);
+        setStageIndex(2); // "gain punch"
       }
     } catch {}
   }
@@ -310,8 +325,7 @@ async function advanceStageOnTurn(text) {
       if (lbl === "genre" || lbl === "title") {
         pendingMovieLabel = lbl;
         pendingMovieText = text;
-        gameStageIndex = 4; // "add kiss"
-        setSkillVisible("kiss", true);
+        setStageIndex(4); // "add kiss"
       }
     } catch {}
   }
@@ -321,7 +335,7 @@ function postTurnStageBumps() {
   // Keep your simple linear bumps (if you still want them)
   if (currentStage() === "gain punch") {
     // After he reacts to "new button", continue the date
-    gameStageIndex = 3; // "watch movie"
+    setStageIndex(3); // "watch movie"
   }
 }
 
@@ -429,8 +443,7 @@ async function detectMovieChoice(text) {
 async function runIntro() {
   document.querySelector(".bubble-text").innerText = "…";
   updateMainImage();
-  setSkillVisible("punch", false);
-  setSkillVisible("kiss", false);
+  syncSkillUnlocks();
   try {
     const res = await fetch(`${API_BASE}/chat`, {
       method: "POST",
