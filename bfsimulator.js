@@ -51,6 +51,9 @@ let pendingMovieText = "";
 let punchUnlocked = false;
 let kissUnlocked = false;
 
+let leaguePickMade = false;
+let leaguePickText = "";
+
 function syncSkillUnlocks() {
   // If we ever pass food (stage index >= 2), punch is unlocked forever
   if (gameStageIndex >= 2) punchUnlocked = true;
@@ -204,15 +207,19 @@ Do not end with questions.
 }
 
 function personaPlayLeague() {
+  const leagueLine = leaguePickMade
+    ? `The user chose: "${leaguePickText}". React to their pick and start the match. Do NOT ask what champ they want.`
+    : `Ask what character (champ) they want to play.`;
+
   return `${PERSONA_PROMPT}
 
 ${stateBlock()}
 
 Reply to the user message.
 Let tone reflect internal stats.
-Tell the user that you booted up League of Legends, and ask what character they want to play.
-The words PLAY LEAGUE should be in caps.
-Be playful, short, and “in the moment” (banter, quick reactions).
+Tell the user that you booted up League of Legends. The words PLAY LEAGUE should be in caps.
+${leagueLine}
+Be playful, short, and in-the-moment.
 Do not end with questions.
 `;
 }
@@ -298,9 +305,24 @@ function updateMainImage() {
 async function advanceStageOnTurn(text) {
   // Rule: if we're in the kissing stage, ANY user turn goes to next stage immediately
   if (currentStage() === "add kiss") {
-    setStageIndex(5); // "play league"
+    leaguePickMade = false;
+    leaguePickText = "";
+    setStageIndex(5);
     return;
   }
+
+  // Play League: after user picks a champ, stay here 1 more user turn, then move on
+  if (currentStage() === "play league" && text !== "[PUNCH]" && text !== "[KISS]") {
+    if (!leaguePickMade) {
+      leaguePickMade = true;
+      leaguePickText = text;   // store whatever they typed as the pick
+      return;                  // stay in play league for this turn
+    } else {
+      setStageIndex(6);        // "favorite part of date night"
+      return;
+    }
+  }
+
 
   // Intro -> Order food (one-time progression)
   if (currentStage() === "introduction") {
