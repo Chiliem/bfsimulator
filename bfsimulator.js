@@ -53,6 +53,7 @@ let kissUnlocked = false;
 
 let leaguePickMade = false;
 let leaguePickText = "";
+let favoritePartAnswered = false;
 
 function syncSkillUnlocks() {
   // If we ever pass food (stage index >= 2), punch is unlocked forever
@@ -148,7 +149,7 @@ function personaIntroduction() {
 
 ${stateBlock()}
 
-Greet the user. Welcome to date night. Write "DATE NIGHT" in caps.
+Greet the user. Welcome to virtual date night. Write "VIRTUAL DATE NIGHT" in caps.
 Your tone and warmth should be influenced by the internal stats, but never mention or reveal them.
 `;
 }
@@ -232,7 +233,7 @@ ${stateBlock()}
 Reply to the user message.
 Let tone reflect internal stats.
 Ask for the user's favorite part of the virtual date night (keep it short).
-The words "FAVORITE PART OF DATE NIGHT" should be in caps.
+The words "FAVORITE PART OF VIRTUAL DATE NIGHT" should be in caps.
 Do not end with questions.
 `;
 }
@@ -323,6 +324,17 @@ async function advanceStageOnTurn(text) {
     }
   }
 
+  // Favorite Part: stay one extra turn before moving to flowers
+  if (currentStage() === "favorite part of date night" && text !== "[PUNCH]" && text !== "[KISS]") {
+    if (!favoritePartAnswered) {
+      favoritePartAnswered = true;
+      return; // stay in favorite part for this turn
+    } else {
+      favoritePartAnswered = false; // reset for future playthrough
+      setStageIndex(7); // "flowers"
+      return;
+    }
+  }
 
   // Intro -> Order food (one-time progression)
   if (currentStage() === "introduction") {
