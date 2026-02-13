@@ -232,7 +232,7 @@ ${stateBlock()}
 
 Reply to the user message.
 Let tone reflect internal stats.
-Ask for the user's favorite part of the virtual date night (keep it short).
+ask "what is your FAVORITE PART OF VIRTUAL DATE NIGHT".
 The words "FAVORITE PART OF VIRTUAL DATE NIGHT" should be in caps.
 Do not end with questions.
 `;
