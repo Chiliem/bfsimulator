@@ -104,16 +104,17 @@ function personaForStage() {
       return personaWatchMovie();
 
     case "add kiss":
-      return personaAddKiss?.();
+      return personaAddKiss();
 
     case "play league":
-      return personaPlayLeague?.();
+      return personaPlayLeague();
 
     case "favorite part of date night":
-      return personaFavoritePart?.();
+      return personaFavoritePart();
 
     case "flowers":
-      return personaFlowers?.();
+      return personaFlowers();
+
 
     default:
       throw new Error(`Unknown stage: ${currentStage()}`);
@@ -125,7 +126,7 @@ function personaIntroduction() {
 
 ${stateBlock()}
 
-Greet the user. Welcome to date night.
+Greet the user. Welcome to date night. Write "DATE NIGHT" in caps.
 Your tone and warmth should be influenced by the internal stats, but never mention or reveal them.
 `;
 }
@@ -137,7 +138,7 @@ ${stateBlock()}
 
 Reply to the user message.
 Let your tone, warmth, and energy be influenced by the internal stats, but never mention or reveal them.
-Offer to order food.
+Offer to order food. The words "ORDER FOOD" are in caps.
 MUST ask what exact food item do we want to order until we get an exact item.
 `
 }
@@ -165,7 +166,7 @@ Reply to the user message.
 Let tone reflect internal stats.
 Ask what movie genre we should watch until the user gives either:
 - a movie genre (like horror, romcom, sci-fi, thriller)
-- or a real movie title.
+- or a real movie title. The words "MOVIE" should be in caps.
 
 Stay short.
 `;
@@ -183,7 +184,44 @@ Do not end with questions.
 `;
 }
 
+function personaPlayLeague() {
+  return `${PERSONA_PROMPT}
 
+${stateBlock()}
+
+Reply to the user message.
+Let tone reflect internal stats.
+Tell the user that you booted up League of Legends, and ask what character they want to play.
+The words PLAY LEAGUE should be in caps.
+Be playful, short, and “in the moment” (banter, quick reactions).
+Do not end with questions.
+`;
+}
+
+function personaFavoritePart() {
+  return `${PERSONA_PROMPT}
+
+${stateBlock()}
+
+Reply to the user message.
+Let tone reflect internal stats.
+Ask for the user's favorite part of the virtual date night (keep it short).
+The words "FAVORITE PART OF DATE NIGHT" should be in caps.
+Do not end with questions.
+`;
+}
+
+function personaFlowers() {
+  return `${PERSONA_PROMPT}
+
+${stateBlock()}
+
+Reply to the user message.
+Let tone reflect internal stats.
+Say that you got the user some flowers, and ask if they like them.
+Do not end with questions.
+`;
+}
 
 function setSkillVisible(skill, visible) {
   const btn = document.querySelector(`.skill-btn[data-skill="${skill}"]`);
