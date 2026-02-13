@@ -183,6 +183,8 @@ Do not end with questions.
 `;
 }
 
+
+
 function setSkillVisible(skill, visible) {
   const btn = document.querySelector(`.skill-btn[data-skill="${skill}"]`);
   if (!btn) return;
@@ -236,32 +238,88 @@ function updateMainImage() {
   img.alt = `${emotion} ${n}`;
 }
 
+async function advanceStageOnTurn(text) {
+  // Rule: if we're in the kissing stage, ANY user turn goes to next stage immediately
+  if (currentStage() === "add kiss") {
+    gameStageIndex = 5; // "play league"
+    kissModeActive = false;
+    stage.classList.remove("kiss-mode");
+    setSkillVisible("kiss", false);
+    return;
+  }
+
+  // Intro -> Order food (one-time progression)
+  if (currentStage() === "introduction") {
+    gameStageIndex = 1;
+    return;
+  }
+
+  // If we detect food order during "order food", unlock punch and move on
+  if (currentStage() === "order food" && text !== "[PUNCH]" && text !== "[KISS]") {
+    try {
+      order_food_detected = await detectFoodOrder(text);
+      if (order_food_detected) {
+        gameStageIndex = 2; // "gain punch"
+        setSkillVisible("punch", true);
+      }
+    } catch {}
+  }
+
+  // If we detect a movie choice during "watch movie", unlock kiss and move on
+  if (currentStage() === "watch movie" && text !== "[PUNCH]" && text !== "[KISS]") {
+    try {
+      const lbl = await detectMovieChoice(text);
+      if (lbl === "genre" || lbl === "title") {
+        pendingMovieLabel = lbl;
+        pendingMovieText = text;
+        gameStageIndex = 4; // "add kiss"
+        setSkillVisible("kiss", true);
+      }
+    } catch {}
+  }
+}
+
+function postTurnStageBumps() {
+  // Keep your simple linear bumps (if you still want them)
+  if (currentStage() === "gain punch") {
+    // After he reacts to "new button", continue the date
+    gameStageIndex = 3; // "watch movie"
+  }
+}
 
 
 const API_BASE = "https://bfsimulator-production.up.railway.app";
 
-async function sendUserTurn(text) {
-  
+async function handleUserTurn(text) {
+  // Always record the user turn exactly once
   chatHistory.push({ role: "user", content: text });
-  // Exit punch mode on any typed message (not [PUNCH])
+
+  // Exit modes on any typed message (but allow skill tags to work)
   if (text !== "[PUNCH]" && punchModeActive) {
     punchModeActive = false;
     stage.classList.remove("punch-mode");
   }
+  if (text !== "[KISS]" && kissModeActive) {
+    kissModeActive = false;
+    stage.classList.remove("kiss-mode");
+  }
 
-  if (currentStage() === "introduction") gameStageIndex = 1; // keep your existing behavior
-    if (currentStage() === "gain punch") gameStageIndex = 3;
-      if (currentStage() === "watch movie") {
-        try {
-          const movieLabel = await detectMovieChoice(text);
-          if (movieLabel === "genre" || movieLabel === "title") {
-            gameStageIndex = 4; // move to next stage (add kiss)
-            setSkillVisible("kiss", true);
-          }
-        } catch {
-          // fail silently
-        }
-      }
+  // Fast sentiment (don’t block the main chat if it fails)
+  if (text !== "[PUNCH]" && text !== "[KISS]") {
+    try {
+      const evalRes = await fetch(`${API_BASE}/evaluate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text })
+      });
+      const evalData = await evalRes.json();
+      applySentiment(evalData.label);
+    } catch {}
+  }
+
+
+  // Advance/skip stages BEFORE generating persona (so persona matches the new stage)
+  await advanceStageOnTurn(text);
 
   document.querySelector(".bubble-text").innerText = "…";
 
@@ -285,9 +343,10 @@ async function sendUserTurn(text) {
     const data = JSON.parse(raw);
     const reply = data.reply ?? "(no reply field)";
     document.querySelector(".bubble-text").innerText = reply;
-
     chatHistory.push({ role: "assistant", content: reply });
-    
+
+    // Post-turn linear progression steps (kept, but centralized)
+    postTurnStageBumps();
   } catch (err) {
     console.error(err);
     document.querySelector(".bubble-text").innerText = "Fetch failed (see console)";
@@ -295,127 +354,16 @@ async function sendUserTurn(text) {
 }
 
 
+
 freeInput.addEventListener("keydown", async (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
+  if (e.key !== "Enter") return;
+  e.preventDefault();
 
-    const text = freeInput.value.trim();
-    if (!text) return;
-    if (punchModeActive) {
-      punchModeActive = false;
-      stage.classList.remove("punch-mode");
-    }
+  const text = freeInput.value.trim();
+  if (!text) return;
 
-    chatHistory.push({ role: "user", content: text });
-
-    // evaluate sentiment (fast model)
-    try {
-      const evalRes = await fetch(`${API_BASE}/evaluate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text })
-      });
-
-      const evalData = await evalRes.json();
-      applySentiment(evalData.label);
-    } catch {
-      // fail silently, keep state unchanged
-    }
-
-    freeInput.value = "";
-    document.querySelector(".bubble-text").innerText = "…";
-    
-    // Pin early "food order" mentions (even if we're not in the stage yet)
-    if (!order_food_detected) {
-      try {
-        order_food_detected = await detectFoodOrder(text);
-      } catch {}
-    }
-
-    // Pin early "movie choice" mentions (even if we're not in the stage yet)
-    if (pendingMovieLabel === "none") {
-      try {
-        const lbl = await detectMovieChoice(text);
-        if (lbl === "genre" || lbl === "title") {
-          pendingMovieLabel = lbl;
-          pendingMovieText = text;
-        }
-      } catch {}
-    }
-
-    // If food was already decided earlier, skip "order food" stage when we reach it
-    if (order_food_detected && gameStageIndex <= 1) {
-      gameStageIndex = 2; // gain punch
-      setSkillVisible("punch", true);
-      setSkillVisible("kiss", false);
-    }
-
-    // If movie was already decided earlier, skip "watch movie" stage when we reach it
-    if (pendingMovieLabel !== "none" && gameStageIndex === 3) {
-      gameStageIndex = 4; // add kiss
-      setSkillVisible("kiss", true);
-    }
-
-    if (currentStage() === "order food") {
-      try {
-        order_food_detected = await detectFoodOrder(text);
-        if (order_food_detected) {
-          gameStageIndex = 2;          // gain punch
-          setSkillVisible("punch", true);
-          setSkillVisible("kiss", false);
-        }
-      } catch {
-        // fail silently
-      }
-    }
-
-    if (currentStage() === "watch movie") {
-      try {
-        const movieLabel = await detectMovieChoice(text);
-        if (movieLabel === "genre" || movieLabel === "title") {
-          pendingMovieLabel = movieLabel;
-          pendingMovieText = text;
-          gameStageIndex = 4; // add kiss
-          setSkillVisible("kiss", true);
-        }
-      } catch {}
-    
-    }
-    try {
-      const res = await fetch(`${API_BASE}/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: text,
-          persona: personaForStage(),
-          history: chatHistory
-        }),
-      });
-
-      const raw = await res.text();
-      console.log("Status:", res.status);
-      console.log("Raw response:", raw);
-
-      if (!res.ok) {
-        document.querySelector(".bubble-text").innerText =
-          `Server error (${res.status})`;
-        return;
-      }
-
-    const data = JSON.parse(raw);
-    const reply = data.reply ?? "(no reply field)";
-    document.querySelector(".bubble-text").innerText = reply;
-
-    chatHistory.push({ role: "assistant", content: reply });
-
-    if (currentStage() === "introduction") gameStageIndex = 1; // move to "order food"
-    if (currentStage() === "gain punch") gameStageIndex = 3;   // move to "watch movie"
-    } catch (err) {
-      console.error(err);
-      document.querySelector(".bubble-text").innerText =
-        "Fetch failed (see console)";
-    }
-  }
+  freeInput.value = "";
+  await handleUserTurn(text);
 });
 
 async function detectFoodOrder(text) {
@@ -489,7 +437,7 @@ img.addEventListener("click", () => {
     damage_state = Math.min(12, damage_state + punch_damage);
     happiness_state = Math.max(0, happiness_state + punch_happiness);
     updateMainImage();
-    sendUserTurn("[PUNCH]");
+    handleUserTurn("[PUNCH]");
     return;
   }
 
@@ -497,7 +445,7 @@ img.addEventListener("click", () => {
     damage_state = Math.min(12, damage_state + kiss_damage);
     happiness_state = Math.min(12, happiness_state + kiss_happiness);
     updateMainImage();
-    sendUserTurn("[KISS]");
+    handleUserTurn("[KISS]");
     return;
   }
 });
