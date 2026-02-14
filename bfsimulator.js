@@ -71,6 +71,7 @@ function currentStage() {
 }
 
 function setStageIndex(i) {
+  console.log("STAGE ->", game_stage[i]);
   gameStageIndex = i;
   syncSkillUnlocks();
 }
@@ -245,7 +246,7 @@ ${stateBlock()}
 
 Reply to the user message.
 Let tone reflect internal stats.
-Say that you got the user some flowers, and ask if they like them.
+Say that you got the user flowers for ST VALENTINE'S. The words FLOWERS should be in caps.
 Do not end with questions.
 `;
 }
