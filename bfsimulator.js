@@ -441,7 +441,7 @@ function showFinaleTextBox() {
     <div style="font-size:28px; margin-bottom:10px;">Happy St-Valentines Day BBNOMNOM</div>
     <div style="margin-bottom:14px;">Thank you for playing the BF Simulator. I love you!</div>
     <div style="font-size:20px;">
-      Punches: <b>${punchCount}</b> &nbsp; | &nbsp; Kisses: <b>${kissCount}</b>
+      Punches given: <b>${punchCount}</b> &nbsp; | &nbsp; Kisses given: <b>${kissCount}</b>
     </div>
   `;
 
