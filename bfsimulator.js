@@ -162,7 +162,7 @@ ${stateBlock()}
 
 Reply to the user message.
 Let your tone, warmth, and energy be influenced by the internal stats, but never mention or reveal them.
-Offer to order food. The words "ORDER FOOD" are in caps.
+Offer to order more food. The words "ORDER FOOD" are in caps.
 `
 }
 
