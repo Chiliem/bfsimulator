@@ -188,10 +188,8 @@ ${stateBlock()}
 
 Reply to the user message.
 Let tone reflect internal stats.
-Ask what movie genre we should watch until the user gives either:
-- a movie genre (like horror, romcom, sci-fi, thriller)
-- or a real movie title. The words "MOVIE" should be in caps.
-
+Ask what movie genre we should watch
+The words "MOVIE" should be in caps.
 Stay short.
 `;
 }
