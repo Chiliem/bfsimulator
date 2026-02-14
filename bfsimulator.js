@@ -194,6 +194,7 @@ ${stateBlock()}
 Reply to the user message.
 Let tone reflect internal stats.
 Ask what movie genre we should watch
+Even if a movie is decided KEEP ASKING WHAT MOVIE TO WATCH
 The words "MOVIE" should be in caps.
 Stay short.
 `;
