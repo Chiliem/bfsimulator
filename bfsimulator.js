@@ -57,6 +57,9 @@ let favoritePartAnswered = false;
 let flowersArmed = false;   // first turn in flowers: let chat happen
 let finaleActive = false;   // second turn in flowers: lock UI + show flowers.jpg
 
+let punchCount = 0;
+let kissCount = 0;
+
 function syncSkillUnlocks() {
   // If we ever pass food (stage index >= 2), punch is unlocked forever
   if (gameStageIndex >= 2) punchUnlocked = true;
@@ -410,6 +413,39 @@ function triggerFlowersFinale() {
   // Show flowers image centered
   img.src = "./images/flowers.jpg";
   img.alt = "flowers";
+  setTimeout(showFinaleTextBox, 5000);
+}
+
+function showFinaleTextBox() {
+  // prevent duplicates
+  if (document.getElementById("finaleBox")) return;
+
+  const box = document.createElement("div");
+  box.id = "finaleBox";
+  box.style.position = "fixed";
+  box.style.left = "50%";
+  box.style.top = "50%";
+  box.style.transform = "translate(-50%, -50%)";
+  box.style.background = "rgba(255,255,255,0.95)";
+  box.style.border = "2px solid #000";
+  box.style.borderRadius = "6px";
+  box.style.padding = "18px 22px";
+  box.style.maxWidth = "720px";
+  box.style.textAlign = "center";
+  box.style.fontFamily = `"Trebuchet MS","Verdana","Tahoma","Arial",sans-serif`;
+  box.style.fontSize = "22px";
+  box.style.lineHeight = "1.25";
+  box.style.zIndex = "9999";
+
+  box.innerHTML = `
+    <div style="font-size:28px; margin-bottom:10px;">Happy St-Valentines Day BBNOMNOM</div>
+    <div style="margin-bottom:14px;">Thank you for playing the BF Simulator. I love you!</div>
+    <div style="font-size:20px;">
+      Punches: <b>${punchCount}</b> &nbsp; | &nbsp; Kisses: <b>${kissCount}</b>
+    </div>
+  `;
+
+  document.body.appendChild(box);
 }
 
 const API_BASE = "https://bfsimulator-production.up.railway.app";
@@ -561,6 +597,7 @@ img.addEventListener("click", () => {
   if (punchModeActive) {
     damage_state = Math.min(12, damage_state + punch_damage);
     happiness_state = Math.max(0, happiness_state + punch_happiness);
+    punchCount++;
     updateMainImage();
     handleUserTurn("[PUNCH]");
     return;
@@ -569,6 +606,7 @@ img.addEventListener("click", () => {
   if (kissModeActive) {
     damage_state = Math.min(12, damage_state + kiss_damage);
     happiness_state = Math.min(12, happiness_state + kiss_happiness);
+    kissCount++;
     updateMainImage();
     handleUserTurn("[KISS]");
     return;
