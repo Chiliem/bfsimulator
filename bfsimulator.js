@@ -448,6 +448,26 @@ function showFinaleTextBox() {
   document.body.appendChild(box);
 }
 
+function createPowSprite(x, y) {
+  const pow = document.createElement("img");
+  pow.src = "./images/pow.png";
+  pow.id = "powSprite";
+  pow.style.position = "fixed";
+  pow.style.left = x + "px";
+  pow.style.top = y + "px";
+  pow.style.transform = "translate(-50%, -50%)";
+  pow.style.pointerEvents = "none";
+  pow.style.zIndex = "9998";
+  pow.style.width = "120px";
+  document.body.appendChild(pow);
+}
+
+function removePowSprite() {
+  const existing = document.getElementById("powSprite");
+  if (existing) existing.remove();
+}
+
+
 const API_BASE = "https://bfsimulator-production.up.railway.app";
 
 async function handleUserTurn(text) {
@@ -611,6 +631,15 @@ img.addEventListener("click", () => {
     handleUserTurn("[KISS]");
     return;
   }
+});
+
+document.addEventListener("mousedown", (e) => {
+  if (!punchModeActive || finaleActive) return;
+  createPowSprite(e.clientX, e.clientY);
+});
+
+document.addEventListener("mouseup", () => {
+  removePowSprite();
 });
 
 
