@@ -54,6 +54,8 @@ let kissUnlocked = false;
 let leaguePickMade = false;
 let leaguePickText = "";
 let favoritePartAnswered = false;
+let flowersArmed = false;   // first turn in flowers: let chat happen
+let finaleActive = false;   // second turn in flowers: lock UI + show flowers.jpg
 
 function syncSkillUnlocks() {
   // If we ever pass food (stage index >= 2), punch is unlocked forever
@@ -335,6 +337,17 @@ async function advanceStageOnTurn(text) {
     }
   }
 
+  // Flowers: allow 1 extra turn of chat, then show finale image + lock UI
+  if (currentStage() === "flowers" && text !== "[PUNCH]" && text !== "[KISS]") {
+    if (!flowersArmed) {
+      flowersArmed = true;
+      return; // stay in flowers for this turn
+    } else {
+      triggerFlowersFinale();
+      return;
+    }
+  }
+
   // Intro -> Order food (one-time progression)
   if (currentStage() === "introduction") {
     setStageIndex(1);
@@ -372,6 +385,32 @@ function postTurnStageBumps() {
   }
 }
 
+function triggerFlowersFinale() {
+  finaleActive = true;
+
+  // Stop modes
+  punchModeActive = false;
+  kissModeActive = false;
+  stage.classList.remove("punch-mode");
+  stage.classList.remove("kiss-mode");
+
+  // Hide bubble + controls
+  const bubble = document.querySelector(".speech-bubble");
+  if (bubble) bubble.style.display = "none";
+
+  // Disable input
+  freeInput.disabled = true;
+
+  // Hide skill buttons (they're <img> tags)
+  document.querySelectorAll(".skill-btn").forEach((btn) => {
+    btn.classList.add("disabled");
+    btn.style.pointerEvents = "none";
+  });
+
+  // Show flowers image centered
+  img.src = "./images/flowers.jpg";
+  img.alt = "flowers";
+}
 
 const API_BASE = "https://bfsimulator-production.up.railway.app";
 
@@ -405,7 +444,7 @@ async function handleUserTurn(text) {
 
   // Advance/skip stages BEFORE generating persona (so persona matches the new stage)
   await advanceStageOnTurn(text);
-
+  if (finaleActive) return; //stops api calls after finale is triggered
   document.querySelector(".bubble-text").innerText = "…";
 
   try {
@@ -517,6 +556,8 @@ if (punchBtn) {
 }
 
 img.addEventListener("click", () => {
+  if (finaleActive) return;
+
   if (punchModeActive) {
     damage_state = Math.min(12, damage_state + punch_damage);
     happiness_state = Math.max(0, happiness_state + punch_happiness);
