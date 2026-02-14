@@ -410,6 +410,8 @@ function triggerFlowersFinale() {
     btn.style.pointerEvents = "none";
   });
 
+  removeKissSprite();
+  removePowSprite();
   // Show flowers image centered
   img.src = "./images/flowers.jpg";
   img.alt = "flowers";
@@ -467,6 +469,24 @@ function removePowSprite() {
   if (existing) existing.remove();
 }
 
+function createKissSprite(x, y) {
+  const kiss = document.createElement("img");
+  kiss.src = "./images/mwah.png";
+  kiss.id = "kissSprite";
+  kiss.style.position = "fixed";
+  kiss.style.left = x + "px";
+  kiss.style.top = y + "px";
+  kiss.style.transform = "translate(-50%, -50%)";
+  kiss.style.pointerEvents = "none";
+  kiss.style.zIndex = "9998";
+  kiss.style.width = "120px";
+  document.body.appendChild(kiss);
+}
+
+function removeKissSprite() {
+  const existing = document.getElementById("kissSprite");
+  if (existing) existing.remove();
+}
 
 const API_BASE = "https://bfsimulator-production.up.railway.app";
 
@@ -642,6 +662,17 @@ document.addEventListener("mouseup", () => {
   removePowSprite();
 });
 
+document.addEventListener("mousedown", (e) => {
+  if (finaleActive) return;
+
+  if (kissModeActive) {
+    createKissSprite(e.clientX, e.clientY);
+  }
+});
+
+document.addEventListener("mouseup", () => {
+  removeKissSprite();
+});
 
 const kissBtn = document.querySelector('.skill-btn[data-skill="kiss"]');
 
